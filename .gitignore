@@ -6,4 +6,8 @@ build/
 .hvigor/
 *.hap
 *.hsp
-.claude/
+.claude/settings.local.json
+.claude/plans/
+.claude/projects/
+.claude/worktrees/
+.claude/scheduled_tasks.json
