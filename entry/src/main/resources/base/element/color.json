@@ -1,0 +1,44 @@
+{
+  "color": [
+    {
+      "name": "start_window_background",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "primary",
+      "value": "#4A90D9"
+    },
+    {
+      "name": "expense_color",
+      "value": "#E8554A"
+    },
+    {
+      "name": "income_color",
+      "value": "#4CAF50"
+    },
+    {
+      "name": "bg_main",
+      "value": "#F5F5F5"
+    },
+    {
+      "name": "bg_card",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "text_primary",
+      "value": "#1A1A1A"
+    },
+    {
+      "name": "text_secondary",
+      "value": "#999999"
+    },
+    {
+      "name": "text_hint",
+      "value": "#CCCCCC"
+    },
+    {
+      "name": "divider",
+      "value": "#EEEEEE"
+    }
+  ]
+}

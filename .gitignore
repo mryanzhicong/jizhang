@@ -1,0 +1,9 @@
+.hvigor/
+node_modules/
+oh_modules/
+build/
+**/build/
+.hvigor/
+*.hap
+*.hsp
+.claude/

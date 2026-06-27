@@ -1,0 +1,156 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "极简记账主模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "极简记账应用入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "极简记账"
+    },
+    {
+      "name": "tab_home",
+      "value": "首页"
+    },
+    {
+      "name": "tab_statistics",
+      "value": "统计"
+    },
+    {
+      "name": "tab_books",
+      "value": "账本"
+    },
+    {
+      "name": "tab_settings",
+      "value": "设置"
+    },
+    {
+      "name": "income",
+      "value": "收入"
+    },
+    {
+      "name": "expense",
+      "value": "支出"
+    },
+    {
+      "name": "balance",
+      "value": "结余"
+    },
+    {
+      "name": "add_record",
+      "value": "记一笔"
+    },
+    {
+      "name": "amount_placeholder",
+      "value": "0.00"
+    },
+    {
+      "name": "note_placeholder",
+      "value": "添加备注..."
+    },
+    {
+      "name": "save",
+      "value": "保存"
+    },
+    {
+      "name": "cancel",
+      "value": "取消"
+    },
+    {
+      "name": "delete",
+      "value": "删除"
+    },
+    {
+      "name": "edit",
+      "value": "编辑"
+    },
+    {
+      "name": "confirm_delete",
+      "value": "确认删除"
+    },
+    {
+      "name": "delete_record_tip",
+      "value": "确定要删除这条记录吗？"
+    },
+    {
+      "name": "no_records",
+      "value": "暂无记录"
+    },
+    {
+      "name": "no_records_tip",
+      "value": "点击下方 + 按钮开始记账"
+    },
+    {
+      "name": "budget_setting",
+      "value": "月度预算"
+    },
+    {
+      "name": "budget_placeholder",
+      "value": "设置月度预算金额"
+    },
+    {
+      "name": "theme_setting",
+      "value": "主题模式"
+    },
+    {
+      "name": "theme_light",
+      "value": "浅色模式"
+    },
+    {
+      "name": "theme_dark",
+      "value": "深色模式"
+    },
+    {
+      "name": "theme_system",
+      "value": "跟随系统"
+    },
+    {
+      "name": "export_data",
+      "value": "导出数据"
+    },
+    {
+      "name": "export_csv",
+      "value": "导出 CSV 文件"
+    },
+    {
+      "name": "export_success",
+      "value": "导出成功"
+    },
+    {
+      "name": "about",
+      "value": "关于"
+    },
+    {
+      "name": "new_book",
+      "value": "新建账本"
+    },
+    {
+      "name": "book_name_placeholder",
+      "value": "请输入账本名称"
+    },
+    {
+      "name": "manage_categories",
+      "value": "分类管理"
+    },
+    {
+      "name": "new_category",
+      "value": "新增分类"
+    },
+    {
+      "name": "category_name_placeholder",
+      "value": "分类名称"
+    },
+    {
+      "name": "select_book",
+      "value": "选择账本"
+    },
+    {
+      "name": "this_month",
+      "value": "本月"
+    }
+  ]
+}
