@@ -1,5 +1,5 @@
 /**
- * 交易记录行组件 - 左滑删除
+ * 交易记录行组件 - 左滑编辑/删除，点击不同区域编辑不同字段
  */
 import { IS_DARK_KEY, getThemeColors, ThemeColors } from '../common/ThemeManager';
 import { RecordDisplay, RECORD_TYPE_INCOME, formatAmountWithSign } from '../models/FinanceModels';
@@ -11,13 +11,15 @@ export struct TransactionItem {
   @Prop record: RecordDisplay;
   onDelete?: (id: number) => void;
   onEdit?: (record: RecordDisplay) => void;
+  onChangeCategory?: (record: RecordDisplay) => void;
+  onEditNote?: (record: RecordDisplay) => void;
+  onEditAmount?: (record: RecordDisplay) => void;
   @State offsetX: number = 0;
 
   private colors: ThemeColors = getThemeColors();
 
   build() {
     Stack({ alignContent: Alignment.End }) {
-      // 编辑+删除按钮
       Row() {
         Button('编辑')
           .fontSize(14).fontColor(Color.White)
@@ -40,14 +42,15 @@ export struct TransactionItem {
 
       Row() {
         Column() {
-          Text(getCategoryEmoji(this.record.categoryIcon))
-            .fontSize(24)
+          Text(getCategoryEmoji(this.record.categoryIcon)).fontSize(24)
         }
-        .width(44).height(44)
-        .borderRadius(22)
+        .width(44).height(44).borderRadius(22)
         .backgroundColor(this.isExp() ? '#FDEAEA' : '#E8F5E9')
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Center)
+        .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
+        .onClick(() => {
+          if (this.offsetX < 0) { this.offsetX = 0; return; }
+          if (this.onChangeCategory) this.onChangeCategory(this.record);
+        })
 
         Column() {
           Text(this.record.categoryName)
@@ -63,11 +66,19 @@ export struct TransactionItem {
         }
         .alignItems(HorizontalAlign.Start)
         .margin({ left: 12 }).layoutWeight(1)
+        .onClick(() => {
+          if (this.offsetX < 0) { this.offsetX = 0; return; }
+          if (this.onEditNote) this.onEditNote(this.record);
+        })
 
         Text(formatAmountWithSign(this.record.amount, this.record.type))
           .fontSize(17).fontWeight(FontWeight.Medium)
           .fontColor(this.isExp() ? this.colors.expenseColor : this.colors.incomeColor)
           .fontFamily('monospace')
+          .onClick(() => {
+            if (this.offsetX < 0) { this.offsetX = 0; return; }
+            if (this.onEditAmount) this.onEditAmount(this.record);
+          })
       }
       .width('100%')
       .padding({ left: 16, right: 16, top: 14, bottom: 14 })
@@ -86,10 +97,6 @@ export struct TransactionItem {
             this.offsetX = this.offsetX < -56 ? -112 : 0;
           })
       )
-      .onClick(() => {
-        if (this.offsetX < 0) { this.offsetX = 0; return; }
-        if (this.onEdit) this.onEdit(this.record);
-      })
     }
     .width('100%').margin({ bottom: 1 }).clip(false)
   }
