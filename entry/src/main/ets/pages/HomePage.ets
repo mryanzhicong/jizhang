@@ -164,11 +164,11 @@ export struct HomePage {
         // 月份卡片
         Column() {
           Row() {
-            Text('      ').fontSize(18)  // 左侧占位，保持居中
+            Text('     ').fontSize(18)  // 左侧占位，保持居中
             Text(getMonthLabel(this.y, this.m) + ' ▾').fontSize(17).fontWeight(FontWeight.Bold)
               .fontColor(this.col.textPrimary).layoutWeight(1).textAlign(TextAlign.Center)
               .onClick(() => this.showMonthPicker())
-            Text('搜索').fontSize(14).fontColor(this.col.textHint)
+            Text('🔍').fontSize(18)
               .onClick(() => this.openSearch())
           }.width('100%').margin({ bottom: 20 })
           Row() {
