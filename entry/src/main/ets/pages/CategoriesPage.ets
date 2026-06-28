@@ -169,9 +169,9 @@ export struct CategoriesPage {
           })
         }
         .width('100%').padding({ left: 16, right: 16 }).layoutWeight(1)
-        Blank().height(80)
+        Blank().height(16)
       }
-      .width('100%').height('100%')
+      .width('100%').layoutWeight(1)
 
       if (this.showAddDialog || this.showEditDialog) {
         this.CatForm(

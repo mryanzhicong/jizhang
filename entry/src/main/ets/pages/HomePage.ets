@@ -229,7 +229,7 @@ export struct HomePage {
           })
         }
         }.width('100%')
-        }.scrollBar(BarState.Off).layoutWeight(1)
+        }.scrollBar(BarState.Off)
       }
     .width('100%').height('100%').backgroundColor(this.col.bgPage)
 

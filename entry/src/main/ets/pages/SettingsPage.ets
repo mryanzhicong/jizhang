@@ -1,11 +1,7 @@
 /**
- * 设置页面 - 分类管理 / 主题 / 导出 / 关于
+ * 设置页面 - 分类管理 / 导出 / 关于
  */
-import {
-  IS_DARK_KEY, getThemeColors, ThemeColors,
-  THEME_MODE_LIGHT, THEME_MODE_DARK, THEME_MODE_SYSTEM,
-  getThemeMode, setThemeMode
-} from '../common/ThemeManager';
+import { IS_DARK_KEY, getThemeColors } from '../common/ThemeManager';
 import { DatabaseHelper } from '../database/DatabaseHelper';
 import { CategoriesPage } from './CategoriesPage';
 import { fileIo } from '@kit.CoreFileKit';
@@ -15,13 +11,12 @@ import { common, Context } from '@kit.AbilityKit';
 export struct SettingsPage {
   @StorageLink(IS_DARK_KEY) isDark: boolean = false;
 
-  @State themeMode: number = getThemeMode();
+  @StorageLink('showCategories') @Watch('onCatChange') showCatLink: number = 0;
   @State showCategories: boolean = false;
 
-  private db: DatabaseHelper = DatabaseHelper.getInstance();
-  private colors: ThemeColors = getThemeColors();
+  onCatChange(): void { this.showCategories = this.showCatLink === 1; }
 
-  aboutToAppear(): void { this.themeMode = getThemeMode(); }
+  private db: DatabaseHelper = DatabaseHelper.getInstance();
 
   async exportCSV(): Promise<void> {
     try {
@@ -40,78 +35,50 @@ export struct SettingsPage {
 
   build() {
     if (this.showCategories) {
-      CategoriesPage({ onBack: () => { this.showCategories = false; AppStorage.set<number>('showCategories', 0); } })
+      Column() { CategoriesPage() }.width('100%').height('100%')
     } else {
     Column() {
-      Row() {
-        Text('设置').fontSize(20).fontWeight(FontWeight.Bold).fontColor(this.colors.textPrimary)
-      }
-      .width('100%').padding({ left: 20, right: 20, top: 12, bottom: 8 })
+      Text('设置').fontSize(17).fontWeight(FontWeight.Bold)
+        .fontColor(getThemeColors().textPrimary).width('100%').textAlign(TextAlign.Center)
+        .padding({ left: 20, right: 20, top: 32, bottom: 8 })
 
       Scroll() {
         Column() {
-          Column() {
-            Text('通用').fontSize(13).fontColor(this.colors.textHint).fontWeight(FontWeight.Medium)
-              .padding({ left: 20, top: 12, bottom: 6 })
-            this.SRow('分类管理', '管理收支分类', () => { this.showCategories = true; AppStorage.set<number>('showCategories', 1); })
-          }
+          Text('通用').fontSize(13).fontColor(getThemeColors().textSecondary).fontWeight(FontWeight.Medium)
+            .width('100%').textAlign(TextAlign.Start).padding({ left: 20, top: 12, bottom: 6 })
+          this.SRow('分类管理', '管理收支分类', () => { this.showCategories = true; AppStorage.set<number>('showCategories', 1); })
           Blank().height(16)
 
-          Column() {
-            Text('外观设置').fontSize(13).fontColor(this.colors.textHint).fontWeight(FontWeight.Medium)
-              .padding({ left: 20, top: 12, bottom: 6 })
-            this.SRow('主题模式', this.getThemeLabel(), () => { this.cycleTheme(); })
-          }
+          Text('数据管理').fontSize(13).fontColor(getThemeColors().textSecondary).fontWeight(FontWeight.Medium)
+            .width('100%').textAlign(TextAlign.Start).padding({ left: 20, top: 12, bottom: 6 })
+          this.SRow('导出 CSV', '将当前账本数据导出为 CSV 文件', () => { this.exportCSV(); })
           Blank().height(16)
 
-          Column() {
-            Text('数据管理').fontSize(13).fontColor(this.colors.textHint).fontWeight(FontWeight.Medium)
-              .padding({ left: 20, top: 12, bottom: 6 })
-            this.SRow('导出 CSV', '将当前账本数据导出为 CSV 文件', () => { this.exportCSV(); })
-          }
+          Text('关于').fontSize(13).fontColor(getThemeColors().textSecondary).fontWeight(FontWeight.Medium)
+            .width('100%').textAlign(TextAlign.Start).padding({ left: 20, top: 12, bottom: 6 })
+          this.SRow('应用名称', '极简记账', undefined)
+          this.SRow('版本号', '1.0.0', undefined)
           Blank().height(16)
-
-          Column() {
-            Text('关于').fontSize(13).fontColor(this.colors.textHint).fontWeight(FontWeight.Medium)
-              .padding({ left: 20, top: 12, bottom: 6 })
-            this.SRow('应用名称', '极简记账', undefined)
-            this.SRow('版本号', '1.0.0', undefined)
-          }
-          Blank().height(80)
         }
       }
-      .scrollBar(BarState.Off).layoutWeight(1)
+      .scrollBar(BarState.Off)
     }
-    .width('100%').height('100%').backgroundColor(this.colors.bgPage)
+    .width('100%').height('100%').backgroundColor(getThemeColors().bgPage)
     }
   }
 
   @Builder SRow(label: string, value: string, onClick?: () => void) {
     Row() {
-      Text(label).fontSize(15).fontColor(this.colors.textPrimary).layoutWeight(1)
-      Text(value).fontSize(14).fontColor(this.colors.textSecondary)
+      Text(label).fontSize(15).fontColor(getThemeColors().textPrimary).layoutWeight(1)
+      Text(value).fontSize(14).fontColor(getThemeColors().textSecondary)
         .maxLines(1).textOverflow({ overflow: TextOverflow.Ellipsis }).margin({ right: 4 })
       if (onClick) {
-        Text('›')
-          .fontSize(18).fontColor(this.colors.textHint)
+        Text('›').fontSize(18).fontColor(getThemeColors().textHint)
       }
     }
     .width('100%').height(52).padding({ left: 20, right: 16 })
-    .backgroundColor(this.colors.bgCard)
-    .border({ width: { bottom: 0.5 }, color: this.colors.divider })
+    .backgroundColor(getThemeColors().bgCard)
+    .border({ width: { bottom: 0.5 }, color: getThemeColors().divider })
     .onClick(() => { if (onClick) onClick(); })
-  }
-
-  cycleTheme(): void {
-    if (this.themeMode === THEME_MODE_LIGHT) this.themeMode = THEME_MODE_DARK;
-    else if (this.themeMode === THEME_MODE_DARK) this.themeMode = THEME_MODE_SYSTEM;
-    else this.themeMode = THEME_MODE_LIGHT;
-    setThemeMode(this.themeMode);
-  }
-
-  getThemeLabel(): string {
-    if (this.themeMode === THEME_MODE_LIGHT) return '浅色模式';
-    if (this.themeMode === THEME_MODE_DARK) return '深色模式';
-    return '跟随系统';
   }
 }
