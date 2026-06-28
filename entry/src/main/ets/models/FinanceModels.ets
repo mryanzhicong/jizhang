@@ -98,100 +98,35 @@ export interface PresetCategoryDef {
 
 /** 支出大类及子分类 */
 export const PRESET_EXPENSE_CATEGORIES: PresetCategoryDef[] = [
-  {
-    name: '餐饮',
-    icon: 'restaurant',
-    type: 0,
-    children: ['三餐', '外卖', '零食', '饮品', '聚餐']
-  },
-  {
-    name: '交通',
-    icon: 'car',
-    type: 0,
-    children: ['公交地铁', '打车', '加油', '停车', '火车机票']
-  },
-  {
-    name: '购物',
-    icon: 'cart',
-    type: 0,
-    children: ['服饰', '日用品', '数码', '家电', '美妆']
-  },
-  {
-    name: '住房',
-    icon: 'home',
-    type: 0,
-    children: ['房租', '水电', '物业', '维修']
-  },
-  {
-    name: '娱乐',
-    icon: 'game',
-    type: 0,
-    children: ['电影', '游戏', '运动', '旅游', 'KTV']
-  },
-  {
-    name: '医疗',
-    icon: 'heart',
-    type: 0,
-    children: ['门诊', '药品', '体检']
-  },
-  {
-    name: '教育',
-    icon: 'book',
-    type: 0,
-    children: ['培训', '书籍', '考试']
-  },
-  {
-    name: '通讯',
-    icon: 'mail',
-    type: 0,
-    children: ['话费', '宽带', '快递']
-  },
-  {
-    name: '人情',
-    icon: 'people',
-    type: 0,
-    children: ['礼物', '红包', '聚会']
-  },
-  {
-    name: '其他',
-    icon: 'more',
-    type: 0,
-    children: ['其他支出']
-  }
+  { name: '餐饮', icon: 'restaurant', type: 0, children: ['早餐', '午餐', '晚餐', '外卖', '聚餐'] },
+  { name: '购物', icon: 'cart', type: 0, children: ['日常购物'] },
+  { name: '日用', icon: 'daily', type: 0, children: ['日用品'] },
+  { name: '交通', icon: 'car', type: 0, children: ['公交', '地铁', '打车', '加油', '停车'] },
+  { name: '蔬菜', icon: 'veg', type: 0, children: ['蔬菜'] },
+  { name: '医疗', icon: 'medical', type: 0, children: ['门诊', '药品', '体检'] },
+  { name: '零食', icon: 'snack', type: 0, children: ['零食'] },
+  { name: '娱乐', icon: 'game', type: 0, children: ['电影', '游戏', '运动', '旅游'] },
+  { name: '通讯', icon: 'mail', type: 0, children: ['话费', '宽带'] },
+  { name: '服饰', icon: 'cloth', type: 0, children: ['衣服', '鞋子'] },
+  { name: '美容', icon: 'beauty', type: 0, children: ['护肤', '化妆', '美发'] },
+  { name: '住房', icon: 'home', type: 0, children: ['房租', '水电', '物业'] },
+  { name: '居家', icon: 'house', type: 0, children: ['家居用品', '维修'] },
+  { name: '社交', icon: 'people', type: 0, children: ['礼物', '红包', '聚会'] },
+  { name: '数码', icon: 'digital', type: 0, children: ['手机', '电脑', '配件'] },
+  { name: '书籍', icon: 'book', type: 0, children: ['书籍'] },
+  { name: '学习', icon: 'study', type: 0, children: ['培训', '课程', '考试'] },
+  { name: '办公', icon: 'office', type: 0, children: ['办公用品'] },
+  { name: '快递', icon: 'express', type: 0, children: ['快递'] },
+  { name: '其他', icon: 'more', type: 0, children: ['其他支出'] }
 ];
 
 /** 收入大类及子分类 */
 export const PRESET_INCOME_CATEGORIES: PresetCategoryDef[] = [
-  {
-    name: '工资',
-    icon: 'payroll',
-    type: 1,
-    children: ['基本工资', '奖金', '补贴']
-  },
-  {
-    name: '兼职',
-    icon: 'freelance',
-    type: 1,
-    children: ['副业', '兼职']
-  },
-  {
-    name: '投资',
-    icon: 'stock',
-    type: 1,
-    children: ['理财', '股票', '房租收入']
-  },
-  {
-    name: '退款',
-    icon: 'refund',
-    type: 1,
-    children: ['购物退款']
-  },
-  {
-    name: '其他',
-    icon: 'more',
-    type: 1,
-    children: ['其他收入']
-  }
+  { name: '工资', icon: 'payroll', type: 1, children: ['工资'] },
+  { name: '兼职', icon: 'freelance', type: 1, children: ['兼职收入'] },
+  { name: '理财', icon: 'stock', type: 1, children: ['理财收益'] },
+  { name: '礼金', icon: 'gift', type: 1, children: ['礼金'] },
+  { name: '其他', icon: 'more', type: 1, children: ['其他收入'] }
 ];
 
 // ==================== 工具函数 ====================

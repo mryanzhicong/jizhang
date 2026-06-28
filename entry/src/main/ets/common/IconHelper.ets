@@ -6,20 +6,13 @@
 
 /** 分类 icon 名 → emoji 映射 */
 const CATEGORY_EMOJI: Record<string, string> = {
-  'restaurant': '🍽️',
-  'car': '🚗',
-  'cart': '🛒',
-  'home': '🏠',
-  'game': '🎮',
-  'heart': '❤️',
-  'book': '📖',
-  'mail': '📧',
-  'people': '👥',
-  'more': '⋯',
-  'payroll': '💰',
-  'freelance': '💼',
-  'stock': '📈',
-  'refund': '↩️',
+  'restaurant': '🍽️', 'car': '🚗', 'cart': '🛒', 'home': '🏠',
+  'game': '🎮', 'heart': '❤️', 'book': '📖', 'mail': '📧',
+  'people': '👥', 'more': '⋯', 'payroll': '💰', 'freelance': '💼',
+  'stock': '📈', 'refund': '↩️', 'daily': '🧴', 'veg': '🥬',
+  'fruit': '🍎', 'snack': '🍿', 'cloth': '👕', 'beauty': '💄', 'medical': '🏥',
+  'house': '🏡', 'digital': '📱', 'study': '📚', 'office': '🖊️',
+  'express': '📦', 'gift': '🎁',
 };
 
 /** 账本 icon 名 → emoji 映射 */
