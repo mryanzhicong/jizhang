@@ -26,14 +26,6 @@ export interface RecordItem {
   date: number;        // 时间戳(ms)
 }
 
-/** 预算 */
-export interface Budget {
-  id: number;
-  year: number;
-  month: number;
-  amount: number;
-}
-
 /** 记录列表项（带分类信息，用于展示） */
 export interface RecordDisplay {
   id: number;
@@ -61,8 +53,6 @@ export interface MonthStats {
   totalIncome: number;
   totalExpense: number;
   balance: number;
-  budgetAmount: number;
-  budgetUsed: number;         // 已用预算百分比
 }
 
 /** 分类统计 */

@@ -2,7 +2,7 @@
  * 记账面板 — 选分类 → 输金额 → 点完成保存
  */
 import { IS_DARK_KEY, getThemeColors, ThemeColors } from '../common/ThemeManager';
-import { RECORD_TYPE_EXPENSE, RECORD_TYPE_INCOME, Category } from '../models/FinanceModels';
+import { RECORD_TYPE_EXPENSE, RECORD_TYPE_INCOME, Category, RecordDisplay } from '../models/FinanceModels';
 import { DatabaseHelper } from '../database/DatabaseHelper';
 import { getCategoryEmoji } from '../common/IconHelper';
 
@@ -11,6 +11,7 @@ export struct AddRecordPanel {
   @StorageLink(IS_DARK_KEY) isDark: boolean = false;
   @Link showPanel: boolean;
   onRecordAdded?: () => void;
+  editRecord?: RecordDisplay;
 
   @State recordType: number = RECORD_TYPE_EXPENSE;
   @State selectedCategoryId: number = 0;
@@ -23,11 +24,32 @@ export struct AddRecordPanel {
   @State selectedDate: Date = new Date();
   @State dateStr: string = '今天';
   @State keyboardActive: boolean = false;
+  // 计算器状态
+  @State firstNum: string = '';
+  @State secondNum: string = '';
+  @State op: string = '';
+  @State displayStr: string = '';
 
   private db: DatabaseHelper = DatabaseHelper.getInstance();
   private colors: ThemeColors = getThemeColors();
 
-  aboutToAppear(): void { this.resetForm(); this.loadCategories(); }
+  aboutToAppear(): void {
+    if (this.editRecord) {
+      this.recordType = this.editRecord.type;
+      this.selectedCategoryId = this.editRecord.categoryId;
+      this.selectedCategoryName = this.editRecord.categoryName;
+      this.selectedCategoryIcon = this.editRecord.categoryIcon;
+      this.displayStr = this.editRecord.amount.toString();
+      this.firstNum = this.editRecord.amount.toString();
+      this.note = this.editRecord.note;
+      this.selectedDate = new Date(this.editRecord.date);
+      this.dateStr = `${this.selectedDate.getMonth()+1}月${this.selectedDate.getDate()}日`;
+      this.keyboardActive = false;
+    } else {
+      this.resetForm();
+    }
+    this.loadCategories();
+  }
 
   async loadCategories(): Promise<void> {
     this.parentCategories = await this.db.getParentCategories(this.recordType);
@@ -38,28 +60,45 @@ export struct AddRecordPanel {
     this.showNoteField = true; this.selectedCategoryId = 0;
     this.selectedCategoryName = ''; this.selectedCategoryIcon = '';
     this.selectedDate = new Date(); this.dateStr = '今天';
+    this.firstNum = ''; this.secondNum = ''; this.op = ''; this.displayStr = '';
   }
 
   selectCategory(cat: Category): void {
     this.selectedCategoryId = cat.id;
     this.selectedCategoryName = cat.name;
     this.selectedCategoryIcon = cat.icon;
-    this.amountStr = '';
+    this.firstNum = ''; this.secondNum = ''; this.op = ''; this.displayStr = '';
     this.keyboardActive = true;
   }
 
+  calResult(): number {
+    const a = parseFloat(this.firstNum) || 0;
+    const b = parseFloat(this.secondNum) || 0;
+    if (this.op === '+') return a + b;
+    if (this.op === '-') return a - b;
+    return parseFloat(this.secondNum) || parseFloat(this.firstNum) || 0;
+  }
+
   onKeyboardConfirm(): void {
-    const amt = parseFloat(this.amountStr) || 1;
+    const amt = Math.abs(this.calResult()) || 1;
     const catId = this.selectedCategoryId || 1;
     const rd = this.selectedDate;
     const recordDate = new Date(rd.getFullYear(), rd.getMonth(), rd.getDate(),
       new Date().getHours(), new Date().getMinutes(), 0, 0).getTime();
-    this.db.addRecord(this.recordType, catId, amt, this.note.trim(), recordDate)
-      .then(() => {
-        if (this.onRecordAdded) this.onRecordAdded();
-        this.showPanel = false;
-        this.resetForm();
-      });
+    if (this.editRecord) {
+      this.db.updateRecord(this.editRecord.id, this.recordType, catId, amt, this.note.trim(), recordDate)
+        .then(() => {
+          if (this.onRecordAdded) this.onRecordAdded();
+          this.showPanel = false;
+        });
+    } else {
+      this.db.addRecord(this.recordType, catId, amt, this.note.trim(), recordDate)
+        .then(() => {
+          if (this.onRecordAdded) this.onRecordAdded();
+          this.showPanel = false;
+          this.resetForm();
+        });
+    }
   }
 
   switchType(type: number): void {
@@ -144,7 +183,7 @@ export struct AddRecordPanel {
                 Text(getCategoryEmoji(cat.icon)).fontSize(26)
               }
               .width(56).height(56).borderRadius(28)
-              .backgroundColor(this.typeColor() + '14')
+              .backgroundColor(this.isDark ? '#3A3A3A' : '#E0E0E0')
               .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
               Text(cat.name).fontSize(12).fontColor(this.colors.textSecondary).margin({ top: 6 })
             }
@@ -169,7 +208,7 @@ export struct AddRecordPanel {
             .fontColor(this.colors.textPrimary).margin({ left: 8 })
           Text('▾').fontSize(12).fontColor(this.colors.textHint).margin({ left: 4 })
         }
-        .onClick(() => { this.keyboardActive = false; this.amountStr = ''; })
+        .onClick(() => { this.keyboardActive = false; this.firstNum = ''; this.secondNum = ''; this.op = ''; this.displayStr = ''; })
         Blank()
         Row({ space: 8 }) {
           Button() {
@@ -190,12 +229,12 @@ export struct AddRecordPanel {
       .width('100%').padding({ left: 20, right: 16, top: 8, bottom: 4 })
 
       Column() {
-        Text(this.amountStr || '0.00')
-          .fontSize(this.amountStr ? 42 : 36).fontWeight(FontWeight.Bold)
-          .fontColor(this.amountStr ? this.typeColor() : this.colors.textHint)
+        Text(this.displayStr || '0.00')
+          .fontSize(this.displayStr ? 42 : 36).fontWeight(FontWeight.Bold)
+          .fontColor(this.displayStr ? this.typeColor() : this.colors.textHint)
           .fontFamily('monospace')
       }
-      .width('100%').height(70).justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
+      .width('100%').height(65).justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
 
       if (this.showNoteField || this.note) {
         Row() {
@@ -208,25 +247,6 @@ export struct AddRecordPanel {
         .width('100%').padding({ left: 20, right: 20, top: 4, bottom: 4 })
       }
 
-      Scroll() {
-        Row({ space: 8 }) {
-          ForEach(this.parentCategories, (cat: Category) => {
-            Column() {
-              Text(getCategoryEmoji(cat.icon)).fontSize(18)
-            }
-            .width(36).height(36).borderRadius(18)
-            .backgroundColor(cat.id === this.selectedCategoryId ? this.typeColor() : this.colors.bgInput)
-            .justifyContent(FlexAlign.Center).alignItems(HorizontalAlign.Center)
-            .onClick(() => {
-              this.selectedCategoryId = cat.id;
-              this.selectedCategoryName = cat.name;
-              this.selectedCategoryIcon = cat.icon;
-            })
-          })
-        }
-        .padding({ left: 16, right: 16 })
-      }
-      .scrollBar(BarState.Off).width('100%').height(52)
     }
     .width('100%').layoutWeight(1)
   }
@@ -256,12 +276,12 @@ export struct AddRecordPanel {
       }
       .columnsTemplate('1fr 1fr 1fr 1fr')
       .rowsTemplate('1fr 1fr 1fr 1fr')
-      .columnsGap(1).rowsGap(1)
+      .columnsGap(4).rowsGap(4)
       .width('100%').height(260)
       .backgroundColor(this.colors.divider)
       .padding({ left: 16, right: 16 })
     }
-    .width('100%').backgroundColor(this.colors.bgCard)
+    .width('100%').backgroundColor(this.colors.bgCard).padding({ bottom: 15 })
   }
 
   @Builder K(label: string) {
@@ -269,7 +289,7 @@ export struct AddRecordPanel {
       .fontSize(label === '⌫' ? 20 : 22)
       .fontColor(label === '⌫' ? this.colors.textSecondary : this.colors.textPrimary)
       .backgroundColor(this.colors.bgCard).borderRadius(0)
-      .width('100%').height('100%')
+      .width('100%').height('100%').padding(6)
       .onClick(() => this.onKey(label))
   }
 
@@ -288,31 +308,55 @@ export struct AddRecordPanel {
       .fontColor(Color.White)
       .backgroundColor(this.typeColor()).borderRadius(0)
       .width('100%').height('100%')
-      .onClick(() => {
-        const amt = parseFloat(this.amountStr) || 1;
-        const catId = this.selectedCategoryId || 1;
-        const rd = this.selectedDate;
-        const recordDate = new Date(rd.getFullYear(), rd.getMonth(), rd.getDate(),
-          new Date().getHours(), new Date().getMinutes(), 0, 0).getTime();
-        this.db.addRecord(this.recordType, catId, amt, this.note.trim(), recordDate);
-        if (this.onRecordAdded) this.onRecordAdded();
-        this.showPanel = false;
-        this.resetForm();
-      })
+      .onClick(() => { this.onKeyboardConfirm(); })
   }
 
   onKey(key: string): void {
-    if (key === '⌫') { this.amountStr = this.amountStr.slice(0, -1); return; }
-    if (key === '.') {
-      if (this.amountStr.includes('.')) return;
-      if (!this.amountStr) { this.amountStr = '0.'; return; }
-      this.amountStr += '.';
+    if (key === '⌫') {
+      if (this.secondNum) {
+        this.secondNum = this.secondNum.slice(0, -1);
+        this.displayStr = this.firstNum + this.op + this.secondNum;
+      } else if (this.op) {
+        this.op = '';
+        this.displayStr = this.firstNum;
+      } else if (this.firstNum) {
+        this.firstNum = this.firstNum.slice(0, -1);
+        this.displayStr = this.firstNum;
+      }
       return;
     }
-    if (key === '+' || key === '-') return;
-    if (this.amountStr === '0' || this.amountStr === '') { this.amountStr = key; return; }
-    if (this.amountStr.includes('.') && this.amountStr.split('.')[1].length >= 2) return;
-    if (this.amountStr.replace('.', '').length >= 9) return;
-    this.amountStr += key;
+    if (key === '.') {
+      const cur = this.op ? this.secondNum : this.firstNum;
+      if (cur.includes('.')) return;
+      if (this.op) {
+        this.secondNum = cur ? cur + '.' : '0.';
+      } else {
+        this.firstNum = cur ? cur + '.' : '0.';
+      }
+      this.displayStr = this.firstNum + this.op + this.secondNum;
+      return;
+    }
+    if (key === '+' || key === '-') {
+      if (this.firstNum && this.secondNum && this.op) {
+        // 链式计算
+        this.firstNum = this.calResult().toString();
+        this.secondNum = '';
+      }
+      if (!this.firstNum) return;
+      this.op = key;
+      this.displayStr = this.firstNum + this.op;
+      return;
+    }
+    // 数字键
+    const cur = this.op ? this.secondNum : this.firstNum;
+    if (cur === '0') return;
+    if (cur.includes('.') && cur.split('.')[1].length >= 2) return;
+    if (cur.replace('.', '').length >= 9) return;
+    if (this.op) {
+      this.secondNum = this.secondNum + key;
+    } else {
+      this.firstNum = this.firstNum + key;
+    }
+    this.displayStr = this.firstNum + this.op + this.secondNum;
   }
 }

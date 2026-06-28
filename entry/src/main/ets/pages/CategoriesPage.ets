@@ -20,6 +20,7 @@ export struct CategoriesPage {
   @State editingCat: Category | null = null;
   @State catName: string = '';
   @State addingType: number = RECORD_TYPE_EXPENSE;
+  onBack?: () => void;
 
   private db: DatabaseHelper = DatabaseHelper.getInstance();
   private colors: ThemeColors = getThemeColors();
@@ -59,8 +60,13 @@ export struct CategoriesPage {
     Stack() {
       Column() {
         Row() {
+          if (this.onBack) {
+            Button() { Text('‹ 设置').fontSize(14).fontColor(this.colors.primary) }
+              .height(32).backgroundColor(Color.Transparent)
+              .onClick(() => { if (this.onBack) this.onBack(); })
+          }
           Text('分类管理').fontSize(20).fontWeight(FontWeight.Bold).fontColor(this.colors.textPrimary)
-          Blank()
+            .layoutWeight(1)
           Button('新增')
             .fontSize(14).fontColor(this.colors.primary)
             .backgroundColor(this.colors.primaryLight).borderRadius(16)

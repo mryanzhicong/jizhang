@@ -1,6 +1,20 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "type": "HarmonyOS",
+        "material": {
+          "certpath": "C:\\Users\\YM201\\.ohos\\config\\default_jizhang_SFgHVILSSLqE65RjUiRBN9Pe3N88j5o23rXd2KmJ_q0=.cer",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A5FC7E60DF5187E4B65F4C2F1F68713B0D820197B1384A7768809CAE3FA13912243C7881F57B5",
+          "profile": "C:\\Users\\YM201\\.ohos\\config\\default_jizhang_SFgHVILSSLqE65RjUiRBN9Pe3N88j5o23rXd2KmJ_q0=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:\\Users\\YM201\\.ohos\\config\\default_jizhang_SFgHVILSSLqE65RjUiRBN9Pe3N88j5o23rXd2KmJ_q0=.p12",
+          "storePassword": "0000001AC77D4608552A627BA6CA7B51BA297037F9F15B0CBD7C30C1DA27316FB9D24EB19C2B4BB6A10C"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

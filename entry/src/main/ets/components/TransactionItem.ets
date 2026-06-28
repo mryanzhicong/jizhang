@@ -17,16 +17,26 @@ export struct TransactionItem {
 
   build() {
     Stack({ alignContent: Alignment.End }) {
-      // 红色删除按钮
-      Button('删除')
-        .fontSize(13).fontColor(Color.White)
-        .width(52).padding({ top: 16, bottom: 16 })
-        .backgroundColor(this.colors.expenseColor)
-        .borderRadius({ topRight: 12, bottomRight: 12 })
-      .onClick(() => {
-        this.offsetX = 0;
-        if (this.onDelete) this.onDelete(this.record.id);
-      })
+      // 编辑+删除按钮
+      Row() {
+        Button('编辑')
+          .fontSize(14).fontColor(Color.White)
+          .width(56).height(48).padding(0)
+          .backgroundColor(this.colors.primary).borderRadius(0)
+        .onClick(() => {
+          this.offsetX = 0;
+          if (this.onEdit) this.onEdit(this.record);
+        })
+        Button('删除')
+          .fontSize(14).fontColor(Color.White)
+          .width(56).height(48).padding(0)
+          .backgroundColor(this.colors.expenseColor)
+          .borderRadius({ topRight: 12, bottomRight: 12 })
+        .onClick(() => {
+          this.offsetX = 0;
+          if (this.onDelete) this.onDelete(this.record.id);
+        })
+      }
 
       Row() {
         Column() {
@@ -69,11 +79,11 @@ export struct TransactionItem {
           .onActionStart(() => { })
           .onActionUpdate((event: GestureEvent) => {
             if (event.offsetX > 0) { this.offsetX = 0; }
-            else if (event.offsetX < -56) { this.offsetX = -56; }
+            else if (event.offsetX < -112) { this.offsetX = -112; }
             else { this.offsetX = event.offsetX; }
           })
           .onActionEnd(() => {
-            this.offsetX = this.offsetX < -28 ? -56 : 0;
+            this.offsetX = this.offsetX < -56 ? -112 : 0;
           })
       )
       .onClick(() => {
@@ -81,7 +91,7 @@ export struct TransactionItem {
         if (this.onEdit) this.onEdit(this.record);
       })
     }
-    .width('100%').margin({ bottom: 1 })
+    .width('100%').margin({ bottom: 1 }).clip(false)
   }
 
   isExp(): boolean { return this.record.type !== RECORD_TYPE_INCOME; }

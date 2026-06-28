@@ -5,7 +5,7 @@
 import { relationalStore, ValuesBucket } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import {
-  Category, RecordItem, Budget,
+  Category, RecordItem,
   RecordDisplay, DayGroup, MonthStats,
   CategoryStats, MonthTrend,
   RECORD_TYPE_EXPENSE, RECORD_TYPE_INCOME,
@@ -278,6 +278,7 @@ export class DatabaseHelper {
   }
 
   private groupByDay(records: RecordDisplay[]): DayGroup[] {
+    const WEEKS = ['日', '一', '二', '三', '四', '五', '六'];
     const groupMap = new Map<string, DayGroup>();
     for (const r of records) {
       const d = new Date(r.date);
@@ -285,8 +286,9 @@ export class DatabaseHelper {
       if (!groupMap.has(key)) {
         const m = d.getMonth() + 1;
         const day = d.getDate();
+        const w = WEEKS[d.getDay()];
         groupMap.set(key, {
-          dateLabel: `${m.toString().padStart(2,'0')}月${day.toString().padStart(2,'0')}日`,
+          dateLabel: `${m.toString().padStart(2,'0')}月${day.toString().padStart(2,'0')}日 星期${w}`,
           dayIncome: 0, dayExpense: 0, records: []
         });
       }
@@ -345,15 +347,7 @@ export class DatabaseHelper {
       [ms.toString(), me.toString()]);
     let te = 0; if (expRs.goToNextRow()) te = expRs.getDouble(expRs.getColumnIndex('t')); expRs.close();
 
-    const budRs = await store.querySql(
-      'SELECT amount FROM budgets WHERE year=? AND month=?',
-      [year.toString(), month.toString()]);
-    let ba = 0; if (budRs.goToNextRow()) ba = budRs.getDouble(budRs.getColumnIndex('amount')); budRs.close();
-
-    return {
-      totalIncome: ti, totalExpense: te, balance: ti - te,
-      budgetAmount: ba, budgetUsed: ba > 0 ? (te / ba) * 100 : 0
-    };
+    return { totalIncome: ti, totalExpense: te, balance: ti - te };
   }
 
   async getCategoryStats(year: number, month: number, recordType: number): Promise<CategoryStats[]> {
@@ -500,35 +494,30 @@ export class DatabaseHelper {
     return items;
   }
 
-  // ==================== 预算 ====================
-  async getBudget(year: number, month: number): Promise<Budget | null> {
+  // 获取所有有记录的日期时间戳
+  async getAllRecordDates(): Promise<number[]> {
     const store = this.ensureStore();
-    const pred = new relationalStore.RdbPredicates('budgets');
-    pred.equalTo('year', year).equalTo('month', month);
-    const rs = await store.query(pred);
-    let budget: Budget | null = null;
-    if (rs.goToNextRow()) {
-      budget = { id: rs.getLong(rs.getColumnIndex('id')),
-        year: rs.getLong(rs.getColumnIndex('year')),
-        month: rs.getLong(rs.getColumnIndex('month')),
-        amount: rs.getDouble(rs.getColumnIndex('amount')) };
+    const rs = await store.querySql("SELECT DISTINCT date FROM records ORDER BY date", []);
+    const result: number[] = [];
+    while (rs.goToNextRow()) {
+      result.push(rs.getLong(rs.getColumnIndex('date')));
     }
     rs.close();
-    return budget;
+    return result;
   }
 
-  async setBudget(year: number, month: number, amount: number): Promise<void> {
+  // 获取所有有记录的年月（用于统计页周期选择器）
+  async getAvailableYearMonths(): Promise<string[]> {
     const store = this.ensureStore();
-    const existing = await this.getBudget(year, month);
-    if (existing) {
-      const pred = new relationalStore.RdbPredicates('budgets');
-      pred.equalTo('id', existing.id);
-      await store.update({ 'amount': amount } as ValuesBucket, pred);
-    } else {
-      await store.insert('budgets', {
-        'year': year, 'month': month, 'amount': amount
-      } as ValuesBucket);
+    const rs = await store.querySql(
+      "SELECT DISTINCT strftime('%Y-%m', date/1000, 'unixepoch') as ym FROM records ORDER BY ym DESC",
+      []);
+    const result: string[] = [];
+    while (rs.goToNextRow()) {
+      result.push(rs.getString(rs.getColumnIndex('ym')));
     }
+    rs.close();
+    return result;
   }
 
   // ==================== 导出 ====================

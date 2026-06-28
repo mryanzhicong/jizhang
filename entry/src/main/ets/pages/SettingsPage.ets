@@ -1,13 +1,13 @@
 /**
- * 设置页面 - 预算 / 主题 / 导出 / 关于
+ * 设置页面 - 分类管理 / 主题 / 导出 / 关于
  */
 import {
   IS_DARK_KEY, getThemeColors, ThemeColors,
   THEME_MODE_LIGHT, THEME_MODE_DARK, THEME_MODE_SYSTEM,
   getThemeMode, setThemeMode
 } from '../common/ThemeManager';
-import { getCurrentYearMonth, getMonthLabel } from '../models/FinanceModels';
 import { DatabaseHelper } from '../database/DatabaseHelper';
+import { CategoriesPage } from './CategoriesPage';
 import { fileIo } from '@kit.CoreFileKit';
 import { common, Context } from '@kit.AbilityKit';
 
@@ -15,28 +15,13 @@ import { common, Context } from '@kit.AbilityKit';
 export struct SettingsPage {
   @StorageLink(IS_DARK_KEY) isDark: boolean = false;
 
-  @State budgetAmount: string = '';
-  @State budgetYear: number = getCurrentYearMonth().year;
-  @State budgetMonth: number = getCurrentYearMonth().month;
   @State themeMode: number = getThemeMode();
-  @State showBudgetDialog: boolean = false;
+  @State showCategories: boolean = false;
 
   private db: DatabaseHelper = DatabaseHelper.getInstance();
   private colors: ThemeColors = getThemeColors();
 
-  aboutToAppear(): void { this.loadBudget(); this.themeMode = getThemeMode(); }
-
-  async loadBudget(): Promise<void> {
-    const budget = await this.db.getBudget(this.budgetYear, this.budgetMonth);
-    this.budgetAmount = budget ? budget.amount.toString() : '';
-  }
-
-  async saveBudget(): Promise<void> {
-    const amount = parseFloat(this.budgetAmount);
-    await this.db.setBudget(this.budgetYear, this.budgetMonth,
-      isNaN(amount) ? 0 : amount);
-    this.showBudgetDialog = false; this.loadBudget();
-  }
+  aboutToAppear(): void { this.themeMode = getThemeMode(); }
 
   async exportCSV(): Promise<void> {
     try {
@@ -54,6 +39,9 @@ export struct SettingsPage {
   }
 
   build() {
+    if (this.showCategories) {
+      CategoriesPage({ onBack: () => { this.showCategories = false; AppStorage.set<number>('showCategories', 0); } })
+    } else {
     Column() {
       Row() {
         Text('设置').fontSize(20).fontWeight(FontWeight.Bold).fontColor(this.colors.textPrimary)
@@ -63,13 +51,9 @@ export struct SettingsPage {
       Scroll() {
         Column() {
           Column() {
-            Text('预算管理').fontSize(13).fontColor(this.colors.textHint).fontWeight(FontWeight.Medium)
+            Text('通用').fontSize(13).fontColor(this.colors.textHint).fontWeight(FontWeight.Medium)
               .padding({ left: 20, top: 12, bottom: 6 })
-            this.SRow('月度预算',
-              this.budgetAmount
-                ? `${getMonthLabel(this.budgetYear, this.budgetMonth)}  ¥${parseFloat(this.budgetAmount).toFixed(0)}`
-                : '未设置',
-              () => { this.showBudgetDialog = true; })
+            this.SRow('分类管理', '管理收支分类', () => { this.showCategories = true; AppStorage.set<number>('showCategories', 1); })
           }
           Blank().height(16)
 
@@ -97,10 +81,9 @@ export struct SettingsPage {
         }
       }
       .scrollBar(BarState.Off).layoutWeight(1)
-
-      if (this.showBudgetDialog) { this.BudgetDialog() }
     }
     .width('100%').height('100%').backgroundColor(this.colors.bgPage)
+    }
   }
 
   @Builder SRow(label: string, value: string, onClick?: () => void) {
@@ -117,43 +100,6 @@ export struct SettingsPage {
     .backgroundColor(this.colors.bgCard)
     .border({ width: { bottom: 0.5 }, color: this.colors.divider })
     .onClick(() => { if (onClick) onClick(); })
-  }
-
-  @Builder BudgetDialog() {
-    Stack({ alignContent: Alignment.Center }) {
-      Column()
-        .width('100%').height('100%')
-        .backgroundColor(this.colors.overlay)
-        .onClick(() => { this.showBudgetDialog = false; })
-      Column() {
-        Text('设置月度预算').fontSize(18).fontWeight(FontWeight.Bold).fontColor(this.colors.textPrimary).margin({ bottom: 8 })
-        Text(getMonthLabel(this.budgetYear, this.budgetMonth)).fontSize(14).fontColor(this.colors.textSecondary).margin({ bottom: 16 })
-        Row() {
-          Text('¥').fontSize(24).fontColor(this.colors.primary).margin({ right: 8 })
-          TextInput({ text: this.budgetAmount, placeholder: '0.00' })
-            .fontSize(28).fontWeight(FontWeight.Bold).fontColor(this.colors.textPrimary)
-            .type(InputType.Number).maxLength(10)
-            .backgroundColor(Color.Transparent).layoutWeight(1)
-            .onChange((value: string) => { this.budgetAmount = value; })
-        }
-        .width('100%').padding(12).backgroundColor(this.colors.bgInput).borderRadius(12)
-        Row({ space: 12 }) {
-          Button('取消')
-            .layoutWeight(1).height(40)
-            .fontColor(this.colors.textSecondary)
-            .backgroundColor(this.colors.bgInput).borderRadius(20)
-            .onClick(() => { this.showBudgetDialog = false; })
-          Button('保存')
-            .layoutWeight(1).height(40)
-            .fontColor(Color.White)
-            .backgroundColor(this.colors.primary).borderRadius(20)
-            .onClick(() => { this.saveBudget(); })
-        }
-        .width('100%').margin({ top: 20 })
-      }
-      .width('85%').padding(24).backgroundColor(this.colors.bgCard).borderRadius(20)
-    }
-    .width('100%').height('100%').zIndex(100)
   }
 
   cycleTheme(): void {

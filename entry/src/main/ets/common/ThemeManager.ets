@@ -116,8 +116,8 @@ export const LightColors: ThemeColors = {
   textHint: '#C7C7CC',
   textOnPrimary: '#FFFFFF',
 
-  expenseColor: '#E8554A',
-  incomeColor: '#4CAF50',
+  expenseColor: '#4CAF50',
+  incomeColor: '#E8554A',
   balanceColor: '#4A90D9',
 
   divider: '#EEEEEE',
@@ -147,8 +147,8 @@ export const DarkColors: ThemeColors = {
   textHint: '#5C5C5C',
   textOnPrimary: '#FFFFFF',
 
-  expenseColor: '#FF6B60',
-  incomeColor: '#66BB6A',
+  expenseColor: '#66BB6A',
+  incomeColor: '#FF6B60',
   balanceColor: '#5BA0E8',
 
   divider: '#2C2C2C',
