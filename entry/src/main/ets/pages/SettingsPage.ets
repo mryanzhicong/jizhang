@@ -6,6 +6,7 @@ import { DatabaseHelper } from '../database/DatabaseHelper';
 import { CategoriesPage } from './CategoriesPage';
 import { fileIo } from '@kit.CoreFileKit';
 import picker from '@ohos.file.picker';
+import { util } from '@kit.ArkTS';
 
 @Component
 export struct SettingsPage {
@@ -35,6 +36,66 @@ export struct SettingsPage {
     }
   }
 
+  async importCSV(): Promise<void> {
+    try {
+      const documentPicker = new picker.DocumentViewPicker();
+      const uris = await documentPicker.select();
+      if (uris.length === 0) return;
+      const file = fileIo.openSync(uris[0], fileIo.OpenMode.READ_ONLY);
+      const stat = fileIo.statSync(file.fd);
+      const buf = new ArrayBuffer(stat.size);
+      fileIo.readSync(file.fd, buf);
+      fileIo.closeSync(file.fd);
+      const decoder = new util.TextDecoder('utf-8');
+      const text = decoder.decodeWithStream(new Uint8Array(buf), { stream: false });
+      // 解析 CSV：日期,类型,分类,金额,备注
+      const lines = text.split('\n');
+      let count = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        const cols = this.splitCsvLine(line);
+        if (cols.length < 4) continue;
+        const dateStr = cols[0];
+        const typeStr = cols[1];
+        const catName = cols[2];
+        const amountStr = cols[3];
+        const note = cols.length > 4 ? cols[4] : '';
+        // 解析日期 "YYYY/MM/DD" 或 "YYYY-MM-DD"
+        const dateParts = dateStr.split(/[\/\-]/);
+        if (dateParts.length < 3) continue;
+        const recordDate = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]), 12, 0, 0).getTime();
+        const type = typeStr.includes('收入') ? 1 : 0;
+        const amount = parseFloat(amountStr) || 0;
+        // 查找或创建分类
+        const cats = await this.db.getParentCategories(type);
+        let catId = 0;
+        for (const c of cats) { if (c.name === catName) { catId = c.id; break; } }
+        if (catId === 0) continue; // 分类不匹配，跳过
+        await this.db.addRecord(type, catId, amount, note, recordDate);
+        count++;
+      }
+      AlertDialog.show({ title: '导入成功', message: '已导入 ' + count + ' 条记录', confirm: { value: '确定', action: () => {} } });
+    } catch (_e) {
+      AlertDialog.show({ title: '导入失败', message: '请检查文件格式', confirm: { value: '确定', action: () => {} } });
+    }
+  }
+
+  // 简单的 CSV 行解析（支持引号）
+  splitCsvLine(line: string): string[] {
+    const result: string[] = [];
+    let cur = '';
+    let inQuote = false;
+    for (let i = 0; i < line.length; i++) {
+      const ch = line[i];
+      if (ch === '"') { inQuote = !inQuote; continue; }
+      if (ch === ',' && !inQuote) { result.push(cur); cur = ''; continue; }
+      cur += ch;
+    }
+    result.push(cur);
+    return result;
+  }
+
   build() {
     if (this.showCategories) {
       Column() { CategoriesPage() }.width('100%').height('100%')
@@ -54,6 +115,7 @@ export struct SettingsPage {
           Text('数据管理').fontSize(13).fontColor(getThemeColors().textSecondary).fontWeight(FontWeight.Medium)
             .width('100%').textAlign(TextAlign.Start).padding({ left: 20, top: 12, bottom: 6 })
           this.SRow('导出 CSV', '将当前账本数据导出为 CSV 文件', () => { this.exportCSV(); })
+          this.SRow('导入 CSV', '从 CSV 文件导入记录', () => { this.importCSV(); })
           Blank().height(16)
 
           Text('关于').fontSize(13).fontColor(getThemeColors().textSecondary).fontWeight(FontWeight.Medium)
