@@ -17,6 +17,7 @@ struct Index {
     AppStorage.setOrCreate<number>('refreshTrigger', 0);
     AppStorage.setOrCreate<number>('showCategories', 0);
     AppStorage.setOrCreate<number>('showMonthPicker', 0);
+    AppStorage.setOrCreate<number>('showNoteEdit', 0);
     AppStorage.setOrCreate<number>('showAmtKey', 0);
     AppStorage.setOrCreate<number>('showCatPicker', 0);
     AppStorage.setOrCreate<number>('showEditPanel', 0);
@@ -27,6 +28,9 @@ struct Index {
     if (this.showAddPanel) { this.showAddPanel = false; return true; }
     if (AppStorage.get<number>('showMonthPicker') === 1) {
       AppStorage.set<number>('showMonthPicker', 0); return true;
+    }
+    if (AppStorage.get<number>('showNoteEdit') === 1) {
+      AppStorage.set<number>('showNoteEdit', 0); return true;
     }
     if (AppStorage.get<number>('showAmtKey') === 1) {
       AppStorage.set<number>('showAmtKey', 0); return true;

@@ -45,15 +45,14 @@ export struct StatisticsPage {
     // 默认选中当前所在月份
     let selIdx = this.periodOptions.length - 1; // 默认最新
     const today2 = new Date();
-    const curYM = today2.getFullYear() + '-' + ((today2.getMonth() + 1).toString().padStart(2, '0'));
-    let i = 0;
-    while (i < this.periodOptions.length) {
+    // 从最新往前找，匹配今天所在的周
+    let i = this.periodOptions.length - 1;
+    while (i >= 0) {
       const r = this.optionRanges[i];
-      const d = new Date(r.start);
-      if (d.getFullYear() === today2.getFullYear() && d.getMonth() === today2.getMonth()) {
+      if (today2.getTime() >= r.start && today2.getTime() <= r.end) {
         selIdx = i; break;
       }
-      i++;
+      i--;
     }
     this.selectedOptionIdx = selIdx;
     await this.loadData();

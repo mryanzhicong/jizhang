@@ -23,6 +23,7 @@ export struct HomePage {
   @StorageLink('showEditPanel') @Watch('onEditLink') showEditLink: number = 0;
   @StorageLink('showCatPicker') @Watch('onCatLink') showCatLink: number = 0;
   @StorageLink('showAmtKey') @Watch('onAmtLink') showAmtLink: number = 0;
+  @StorageLink('showNoteEdit') @Watch('onNoteLink') showNoteLink: number = 0;
   @State showSearch: boolean = false;
   @State editingRecord: RecordDisplay | null = null;
   @State showEditPanel: boolean = false;
@@ -39,6 +40,9 @@ export struct HomePage {
   }
   onAmtLink(): void {
     if (this.showAmtLink === 0) this.amtRec = null;
+  }
+  onNoteLink(): void {
+    if (this.showNoteLink === 0) this.noteEditRec = null;
   }
 
   onPickerLink(): void {
@@ -60,11 +64,13 @@ export struct HomePage {
   // --- 快速编辑备注 ---
   @State noteEditRec: RecordDisplay | null = null;
   @State noteEditText: string = '';
-  openNoteEdit(r: RecordDisplay): void { this.noteEditRec = r; this.noteEditText = r.note; }
+  openNoteEdit(r: RecordDisplay): void { this.noteEditRec = r; this.noteEditText = r.note;
+    AppStorage.set<number>('showNoteEdit', 1); }
+  closeNoteEdit(): void { this.closeNoteEdit(); AppStorage.set<number>('showNoteEdit', 0); }
   async saveNote(): Promise<void> {
     if (this.noteEditRec) { await this.db.updateRecord(this.noteEditRec.id,
       this.noteEditRec.type, this.noteEditRec.categoryId, this.noteEditRec.amount,
-      this.noteEditText.trim(), this.noteEditRec.date); this.noteEditRec = null; this.load(); }
+      this.noteEditText.trim(), this.noteEditRec.date); this.closeNoteEdit(); this.load(); }
   }
 
   // --- 快速修改分类 ---
@@ -277,7 +283,7 @@ export struct HomePage {
       if (this.noteEditRec) {
         Stack({ alignContent: Alignment.Center }) {
           Column().width('100%').height('100%').backgroundColor(this.col.overlay)
-            .onClick(() => { this.noteEditRec = null; })
+            .onClick(() => { this.closeNoteEdit(); })
           Column() {
             Text('修改备注').fontSize(18).fontWeight(FontWeight.Bold).fontColor(this.col.textPrimary).margin({ bottom: 16 })
             TextInput({ text: this.noteEditText, placeholder: '备注...' })
@@ -286,7 +292,7 @@ export struct HomePage {
             Row({ space: 12 }) {
               Button('取消').layoutWeight(1).height(40).fontColor(this.col.textPrimary)
                 .backgroundColor(this.col.bgInput).borderRadius(20)
-                .onClick(() => { this.noteEditRec = null; })
+                .onClick(() => { this.closeNoteEdit(); })
               Button('保存').layoutWeight(1).height(40).fontColor(Color.White)
                 .backgroundColor(this.col.primary).borderRadius(20)
                 .onClick(() => { this.saveNote(); })
