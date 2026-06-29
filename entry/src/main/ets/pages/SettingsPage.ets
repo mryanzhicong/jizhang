@@ -5,7 +5,7 @@ import { IS_DARK_KEY, getThemeColors } from '../common/ThemeManager';
 import { DatabaseHelper } from '../database/DatabaseHelper';
 import { CategoriesPage } from './CategoriesPage';
 import { fileIo } from '@kit.CoreFileKit';
-import { common, Context } from '@kit.AbilityKit';
+import picker from '@ohos.file.picker';
 
 @Component
 export struct SettingsPage {
@@ -21,13 +21,15 @@ export struct SettingsPage {
   async exportCSV(): Promise<void> {
     try {
       const csv = await this.db.exportToCSV();
-      const ctx = getContext() as common.UIAbilityContext;
-      const filePath = ctx.filesDir + '/sharkbook_export.csv';
-      const file = fileIo.openSync(filePath, fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY);
+      const saveOption = new picker.DocumentSaveOptions();
+      saveOption.newFileNames = ['极简记账_' + new Date().toISOString().slice(0,10) + '.csv'];
+      const documentPicker = new picker.DocumentViewPicker();
+      const uris = await documentPicker.save(saveOption);
+      if (uris.length === 0) return;
+      const file = fileIo.openSync(uris[0], fileIo.OpenMode.CREATE | fileIo.OpenMode.WRITE_ONLY);
       fileIo.writeSync(file.fd, csv);
       fileIo.closeSync(file.fd);
-
-      AlertDialog.show({ title: '导出成功', message: 'CSV 已保存到应用目录', confirm: { value: '确定', action: () => {} } });
+      AlertDialog.show({ title: '导出成功', message: 'CSV 已保存', confirm: { value: '确定', action: () => {} } });
     } catch (_e) {
       AlertDialog.show({ title: '导出失败', message: '请重试', confirm: { value: '确定', action: () => {} } });
     }
